@@ -1,30 +1,30 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h> //Preprocessor containing header files
+#include <stdio.h>   //헤더 파일을 포함시키는 전처리기
 
-statements defining int main() // functions
+int main()   //함수를 정의하는 문장
 {
-    specify int score[5]; //7 variables
+    int score[5];   //7개의 변수를 지정
     int sum=0;
     double ave=1;
 
-    For (inti=0; i<5; i++) // a statement that specifies variable i as 0 and repeats by adding 1 if it is less than 5
+    for (int i=0; i<5; i++)   //변수 i를 0으로 지정하고 5보다 낮으면 1씩 더하면서 반복시키는 문장
     {
-    printf ("%dth Student Score Input: ",i+1); // Add 1 to variable and output
-    scanf ("%d", &score[i]); // type sentence
-    If (score[i]<0 || score[i]>100) // If the variable is less than 0 or greater than 100, it will still output, or it will go to else.
+    printf("%d번째 학생 점수 입력: ",i+1);   //변수에 1을 더한 후 출력
+    scanf("%d",&score[i]);   //입력하는 문장
+    if (score[i]<0 || score[i]>100)   //변수가 0보다 작거나 100보다 크면 그래도 출력하고 아니면 else로 넘어가는 조건문
     {
-       printf("As if you typed it incorrectly, go back to ㄱ\n"");
-       i--; // reduce the value of i at the end
+       printf("잘못 입력한듯 다시 ㄱㄱ\n");
+       i--;  //마지막에 i의 값을 감소
     }
     else
     {
-        sum += score[i]; // a sentence that continues to add values of 5 people
+        sum += score[i];   //5명의 값을 계속 더하는 문장
     }
 }
 
-Substituting ave=sum/5; //sum divided by 5 into ave
+ave=sum/5;   //sum을 5로 나눈값을 ave에 대입
 
-printf ("The average of five people is %).2f",ave);
+printf("5명의 평균은 %.2f",ave);
 
 return 0;
 
