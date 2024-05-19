@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#define _CRT_SECURE_NO_WARNINGS
+
+int main()
+{
+	int a;
+
+	srand(time(NULL));
+
+	const char* suits[] = { "스페이드", "다이아","하트","클로버" };
+
+	const char* numbers[] = { "2","3","4","5","6","7","8","9","10","Q","J","K" };
+
+	for (int i = 0; i < 2; i++)
+	{
+		int suit_index = rand() % 4;
+		int number_index = rand() % 12;
+
+		printf("%s %s\n", suits[suit_index], numbers[number_index]);
+	}
+
+	int suit_index = rand() % 4;
+	int number_index = rand() % 12;
+
+	printf("깔린 카드는 %s %s 입니다.\n\n", suits[suit_index], numbers[number_index]);
+
+	printf("배팅해주세요: ");
+	scanf_s("%d", &a);
+
+	if (a >= 0 && a <= 50000)
+	{
+		printf("%d원 받았습니다.\n\n", a);
+	}
+	else
+	{
+		printf("예산 부족");
+		return 0;
+	}
+
+	for (int q = 0; q < 4; q++)
+	{
+		int suit_index = rand() % 4;
+		int number_index = rand() % 12;
+
+		printf("다음 카드는%s %s\n", suits[suit_index], numbers[number_index]);
+
+		printf("배팅해주세요: ");
+		scanf_s("%d", &a);
+
+		if (a >= 0 && a <= 50000)
+		{
+			printf("%d원 받았습니다.\n\n", a);
+		}
+		else
+		{
+			printf("예산 부족");
+			return 0;
+		}
+	}
+	return 0;
+}
