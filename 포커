@@ -3,61 +3,78 @@
 #include <time.h>
 #define _CRT_SECURE_NO_WARNINGS
 
-int main()
-{
-	int a;
+#define NUM_SUITS 4
+#define NUM_RANKS 13
+#define NUM_CARDS (NUM_SUITS * NUM_RANKS)
+#define MAX_BET 50000
 
-	srand(time(NULL));
+typedef struct {
+    const char* suit;
+    const char* rank;
+} Card;
 
-	const char* suits[] = { "스페이드", "다이아","하트","클로버" };
+void shuffle(Card deck[], int n) {
+    for (int i = 0; i < n; i++) {
+        int j = rand() % n;
+        Card temp = deck[i];
+        deck[i] = deck[j];
+        deck[j] = temp;
+    }
+}
 
-	const char* numbers[] = { "2","3","4","5","6","7","8","9","10","Q","J","K" };
+int main() {
+    srand(time(NULL));
 
-	for (int i = 0; i < 2; i++)
-	{
-		int suit_index = rand() % 4;
-		int number_index = rand() % 12;
+    const char* suits[] = { "스페이드", "다이아", "하트", "클로버" };
+    const char* ranks[] = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
 
-		printf("%s %s\n", suits[suit_index], numbers[number_index]);
-	}
+    Card deck[NUM_CARDS];
+    int index = 0;
 
-	int suit_index = rand() % 4;
-	int number_index = rand() % 12;
+    for (int i = 0; i < NUM_SUITS; i++) {
+        for (int j = 0; j < NUM_RANKS; j++) {
+            deck[index].suit = suits[i];
+            deck[index].rank = ranks[j];
+            index++;
+        }
+    }
 
-	printf("깔린 카드는 %s %s 입니다.\n\n", suits[suit_index], numbers[number_index]);
+    shuffle(deck, NUM_CARDS);
 
-	printf("배팅해주세요: ");
-	scanf_s("%d", &a);
+    int playerBet;
+    Card playerCards[2];
+    Card computerCards[2];
+    Card communityCards[5];
 
-	if (a >= 0 && a <= 50000)
-	{
-		printf("%d원 받았습니다.\n\n", a);
-	}
-	else
-	{
-		printf("예산 부족");
-		return 0;
-	}
+    printf("플레이어 카드: \n");
+    for (int i = 0; i < 2; i++) {
+        playerCards[i] = deck[i];
+        printf("%s %s\n", playerCards[i].suit, playerCards[i].rank);
+    }
 
-	for (int q = 0; q < 4; q++)
-	{
-		int suit_index = rand() % 4;
-		int number_index = rand() % 12;
+    printf("\n컴퓨터 카드: \n");
+    for (int i = 0; i < 2; i++) {
+        computerCards[i] = deck[2 + i];
+        printf("%s %s\n", computerCards[i].suit, computerCards[i].rank);
+    }
 
-		printf("다음 카드는%s %s\n", suits[suit_index], numbers[number_index]);
+    printf("\n배팅해주세요: ");
+    scanf_s("%d", &playerBet);
 
-		printf("배팅해주세요: ");
-		scanf_s("%d", &a);
+    if (playerBet < 0 || playerBet > MAX_BET) {
+        printf("예산 부족\n");
+        return 0;
+    }
 
-		if (a >= 0 && a <= 50000)
-		{
-			printf("%d원 받았습니다.\n\n", a);
-		}
-		else
-		{
-			printf("예산 부족");
-			return 0;
-		}
-	}
-	return 0;
+    printf("%d원 받았습니다.\n\n", playerBet);
+
+    printf("커뮤니티 카드: \n");
+    for (int i = 0; i < 5; i++) {
+        communityCards[i] = deck[4 + i];
+        printf("%s %s\n", communityCards[i].suit, communityCards[i].rank);
+    }
+
+    printf("\n게임이 종료되었습니다.\n");
+
+    return 0;
 }
