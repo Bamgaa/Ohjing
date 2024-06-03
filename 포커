@@ -3,75 +3,220 @@
 #include <time.h>
 #define _CRT_SECURE_NO_WARNINGS
 
-#define NUM_SUITS 4
-#define NUM_RANKS 13
-#define NUM_CARDS (NUM_SUITS * NUM_RANKS)
-#define MAX_BET 50000
+#define NUM_SUITS 4 // 카드의 수트(무늬) 개수
+#define NUM_RANKS 13 // 카드의 랭크(번호) 개수
+#define NUM_CARDS (NUM_SUITS * NUM_RANKS) // 총 카드 개수
+#define MAX_BET 50000 // 최대 배팅 금액
+#define MIN_BET 100 // 최소 배팅 금액
 
 typedef struct {
-    const char* suit;
-    const char* rank;
+    const char* suit; // 카드의 수트(무늬)
+    const char* rank; // 카드의 랭크(번호)
 } Card;
 
+// 전역 변수로 선언된 suits 배열, ranks 배열, rankValues 배열
+const char* suits[] = { "Spades", "Diamonds", "Hearts", "Clubs" };
+const char* ranks[] = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+int rankValues[NUM_RANKS] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }; // J=11, Q=12, K=13, A=14
+
+// 카드 덱을 섞는 함수
 void shuffle(Card deck[], int n) {
     for (int i = 0; i < n; i++) {
-        int j = rand() % n;
-        Card temp = deck[i];
+        int j = rand() % n; // 무작위 인덱스 선택
+        Card temp = deck[i]; // 카드 교환
         deck[i] = deck[j];
         deck[j] = temp;
     }
 }
 
+// 핸드의 점수를 계산하는 함수
+int evaluateHand(Card hand[], int size) {
+    int score = 0;
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < NUM_RANKS; j++) {
+            if (hand[i].rank == ranks[j]) {
+                score += rankValues[j]; // 카드의 랭크 값 합산
+            }
+        }
+    }
+    return score;
+}
+
 int main() {
-    srand(time(NULL));
+    srand(time(NULL)); // 랜덤 시드 설정
 
-    const char* suits[] = { "스페이드", "다이아", "하트", "클로버" };
-    const char* ranks[] = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
-
-    Card deck[NUM_CARDS];
+    Card deck[NUM_CARDS]; // 카드 덱 배열
     int index = 0;
 
+    // 카드 덱 초기화
     for (int i = 0; i < NUM_SUITS; i++) {
         for (int j = 0; j < NUM_RANKS; j++) {
-            deck[index].suit = suits[i];
-            deck[index].rank = ranks[j];
+            deck[index].suit = suits[i]; // 수트 설정
+            deck[index].rank = ranks[j]; // 랭크 설정
             index++;
         }
     }
 
-    shuffle(deck, NUM_CARDS);
+    shuffle(deck, NUM_CARDS); // 카드 덱 섞기
 
-    int playerBet;
-    Card playerCards[2];
-    Card computerCards[2];
-    Card communityCards[5];
+    int playerBet = 0; // 플레이어의 배팅 금액
+    int computerBet = 0; // 컴퓨터의 배팅 금액
+    int pot = 0; // 포트 금액
+    Card playerCards[2]; // 플레이어의 카드 2장
+    Card computerCards[2]; // 컴퓨터의 카드 2장
+    Card communityCards[5]; // 커뮤니티 카드 5장
 
+    // 플레이어의 카드 출력
     printf("플레이어 카드: \n");
     for (int i = 0; i < 2; i++) {
-        playerCards[i] = deck[i];
+        playerCards[i] = deck[i]; // 덱에서 카드 할당
         printf("%s %s\n", playerCards[i].suit, playerCards[i].rank);
     }
 
+    // 컴퓨터의 카드 출력
     printf("\n컴퓨터 카드: \n");
     for (int i = 0; i < 2; i++) {
-        computerCards[i] = deck[2 + i];
+        computerCards[i] = deck[2 + i]; // 덱에서 카드 할당
         printf("%s %s\n", computerCards[i].suit, computerCards[i].rank);
     }
 
-    printf("\n배팅해주세요: ");
+    // 첫 번째 배팅 라운드 (프리 플랍)
+    printf("\n배팅해주세요 (최소 %d, 최대 %d): ", MIN_BET, MAX_BET);
     scanf_s("%d", &playerBet);
 
-    if (playerBet < 0 || playerBet > MAX_BET) {
-        printf("예산 부족\n");
+    // 배팅 금액 검증
+    if (playerBet < MIN_BET || playerBet > MAX_BET) {
+        printf("잘못된 배팅 금액입니다.\n");
         return 0;
     }
 
-    printf("%d원 받았습니다.\n\n", playerBet);
+    computerBet = rand() % (playerBet + 1); // 컴퓨터는 플레이어의 배팅 이하로 랜덤 배팅
+    if (computerBet < MIN_BET) computerBet = MIN_BET;
 
+    printf("컴퓨터 배팅: %d원\n", computerBet);
+
+    // 배팅 금액 검증
+    if (playerBet < computerBet) {
+        printf("배팅 금액이 충분하지 않습니다.\n");
+        return 0;
+    }
+
+    pot += playerBet + computerBet; // 포트 금액 업데이트
+    printf("플레이어 배팅: %d원\n\n", playerBet);
+
+    // 커뮤니티 카드 3장 공개 (플랍)
+    printf("커뮤니티 카드: \n");
+    for (int i = 0; i < 3; i++) {
+        communityCards[i] = deck[4 + i];
+        printf("%s %s\n", communityCards[i].suit, communityCards[i].rank);
+    }
+
+    // 두 번째 배팅 라운드 (플랍 후)
+    printf("\n배팅해주세요 (최소 %d, 최대 %d): ", MIN_BET, MAX_BET);
+    scanf_s("%d", &playerBet);
+
+    // 배팅 금액 검증
+    if (playerBet < MIN_BET || playerBet > MAX_BET) {
+        printf("잘못된 배팅 금액입니다.\n");
+        return 0;
+    }
+
+    computerBet = rand() % (playerBet + 1);
+    if (computerBet < MIN_BET) computerBet = MIN_BET;
+
+    printf("컴퓨터 배팅: %d원\n", computerBet);
+
+    // 배팅 금액 검증
+    if (playerBet < computerBet) {
+        printf("배팅 금액이 충분하지 않습니다.\n");
+        return 0;
+    }
+
+    pot += playerBet + computerBet; // 포트 금액 업데이트
+    printf("플레이어 배팅: %d원\n\n", playerBet);
+
+    // 커뮤니티 카드 1장 공개 (턴)
+    printf("커뮤니티 카드: \n");
+    for (int i = 0; i < 4; i++) {
+        communityCards[i] = deck[4 + i];
+        printf("%s %s\n", communityCards[i].suit, communityCards[i].rank);
+    }
+
+    // 세 번째 배팅 라운드 (턴 후)
+    printf("\n배팅해주세요 (최소 %d, 최대 %d): ", MIN_BET, MAX_BET);
+    scanf_s("%d", &playerBet);
+
+    // 배팅 금액 검증
+    if (playerBet < MIN_BET || playerBet > MAX_BET) {
+        printf("잘못된 배팅 금액입니다.\n");
+        return 0;
+    }
+
+    computerBet = rand() % (playerBet + 1);
+    if (computerBet < MIN_BET) computerBet = MIN_BET;
+
+    printf("컴퓨터 배팅: %d원\n", computerBet);
+
+    // 배팅 금액 검증
+    if (playerBet < computerBet) {
+        printf("배팅 금액이 충분하지 않습니다.\n");
+        return 0;
+    }
+
+    pot += playerBet + computerBet; // 포트 금액 업데이트
+    printf("플레이어 배팅: %d원\n\n", playerBet);
+
+    // 커뮤니티 카드 1장 공개 (리버)
     printf("커뮤니티 카드: \n");
     for (int i = 0; i < 5; i++) {
         communityCards[i] = deck[4 + i];
         printf("%s %s\n", communityCards[i].suit, communityCards[i].rank);
+    }
+
+    // 마지막 배팅 라운드 (리버 후)
+    printf("\n배팅해주세요 (최소 %d, 최대 %d): ", MIN_BET, MAX_BET);
+    scanf_s("%d", &playerBet);
+
+    // 배팅 금액 검증
+    if (playerBet < MIN_BET || playerBet > MAX_BET) {
+        printf("잘못된 배팅 금액입니다.\n");
+        return 0;
+    }
+
+    computerBet = rand() % (playerBet + 1);
+    if (computerBet < MIN_BET) computerBet = MIN_BET;
+
+    printf("컴퓨터 배팅: %d원\n", computerBet);
+
+    // 배팅 금액 검증
+    if (playerBet < computerBet) {
+        printf("배팅 금액이 충분하지 않습니다.\n");
+        return 0;
+    }
+
+    pot += playerBet + computerBet; // 포트 금액 업데이트
+    printf("플레이어 배팅: %d원\n\n", playerBet);
+
+    // 플레이어와 컴퓨터의 핸드 점수 계산
+    Card playerHand[7] = { playerCards[0], playerCards[1], communityCards[0], communityCards[1], communityCards[2], communityCards[3], communityCards[4] };
+    Card computerHand[7] = { computerCards[0], computerCards[1], communityCards[0], communityCards[1], communityCards[2], communityCards[3], communityCards[4] };
+
+    int playerScore = evaluateHand(playerHand, 7);
+    int computerScore = evaluateHand(computerHand, 7);
+
+    // 결과 출력
+    printf("\n플레이어 점수: %d\n", playerScore);
+    printf("컴퓨터 점수: %d\n", computerScore);
+
+    // 승자 결정
+    if (playerScore > computerScore) {
+        printf("플레이어 승리! 포트 금액: %d원\n", pot);
+    }
+    else if (playerScore < computerScore) {
+        printf("컴퓨터 승리! 포트 금액: %d원\n", pot);
+    }
+    else {
+        printf("무승부! 포트 금액: %d원\n", pot);
     }
 
     printf("\n게임이 종료되었습니다.\n");
