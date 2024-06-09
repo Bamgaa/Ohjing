@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <stdlib.h> // rand(): 무작위 수를 생성하는 함수
+#include <time.h> //현재 시간을 초 단위로 반환하는 함수
 #define _CRT_SECURE_NO_WARNINGS
 
 // 카드의 수트(무늬) 개수와 랭크(번호) 개수 정의
@@ -11,6 +11,7 @@
 #define MIN_BET 100 // 최소 배팅 금액
 
 // 카드 구조체 정의
+//Card라는 새로운 이름을 부여z
 typedef struct {
     const char* suit; // 카드의 수트(무늬)
     const char* rank; // 카드의 랭크(번호)
